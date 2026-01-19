@@ -3,7 +3,7 @@
 // Cache Strategy: Network First with Cache Fallback
 // ============================================
 
-const CACHE_VERSION = 'pia-mobile-v1.0';
+const CACHE_VERSION = 'pia-mobile-v1.1';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 // Files to cache immediately on install
