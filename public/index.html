@@ -175,11 +175,21 @@
         }
       }, { passive: true });
       
-      // Ensure links work on Safari
+      // Force navigation on click/tap
       card.addEventListener('click', (e) => {
+        e.preventDefault();
         console.log('Profile card clicked:', card.href);
-        // Let the default link behavior work
+        // Force navigation
+        window.location.href = card.href;
       });
+      
+      // Also handle touchend for better mobile responsiveness
+      card.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        console.log('Profile card touched:', card.href);
+        // Force navigation
+        window.location.href = card.href;
+      }, { passive: false });
     });
 
     // ============================================
@@ -216,17 +226,18 @@
     // PREVENT ZOOM ON DOUBLE TAP (iOS)
     // ============================================
     
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (event) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        // Only prevent if NOT clicking on a link or button
-        if (!event.target.closest('a, button')) {
-          event.preventDefault();
-        }
-      }
-      lastTouchEnd = now;
-    }, false);
+    // Disabled to avoid interfering with navigation
+    // let lastTouchEnd = 0;
+    // document.addEventListener('touchend', (event) => {
+    //   const now = Date.now();
+    //   if (now - lastTouchEnd <= 300) {
+    //     // Only prevent if NOT clicking on a link or button
+    //     if (!event.target.closest('a, button')) {
+    //       event.preventDefault();
+    //     }
+    //   }
+    //   lastTouchEnd = now;
+    // }, false);
 
   </script>
 
