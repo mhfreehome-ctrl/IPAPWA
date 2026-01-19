@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#F59E0B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Questionnaire Fin de Chantier - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    :root {
+      --profile-color: #F59E0B;
+      --profile-color-dark: #D97706;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding-bottom: 0;
+    }
+    
+    .quiz-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-lg);
+      padding-top: calc(var(--space-lg) + env(safe-area-inset-top));
+    }
+    
+    .quiz-header {
+      color: white;
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+    
+    .quiz-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .quiz-subtitle {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .quiz-progress {
+      background: rgba(255, 255, 255, 0.2);
+      height: 8px;
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .quiz-progress-fill {
+      height: 100%;
+      background: white;
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+    
+    .quiz-question-number {
+      color: white;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      opacity: 0.9;
+    }
+    
+    .quiz-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .quiz-question-text {
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.4;
+      margin-bottom: var(--space-xl);
+      flex: 1;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      justify-content: center;
+    }
+    
+    .quiz-answers {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .quiz-answer-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      font-size: 18px;
+      font-weight: 600;
+      border: 3px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 72px;
+    }
+    
+    .quiz-answer-btn.yes {
+      background: #10B981;
+      color: white;
+    }
+    
+    .quiz-answer-btn.yes:active {
+      background: #059669;
+      transform: scale(0.98);
+    }
+    
+    .quiz-answer-btn.no {
+      background: #EF4444;
+      color: white;
+    }
+    
+    .quiz-answer-btn.no:active {
+      background: #DC2626;
+      transform: scale(0.98);
+    }
+    
+    .quiz-icon {
+      font-size: 32px;
+    }
+    
+    .quiz-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--space-lg);
+    }
+    
+    .quiz-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    
+    .quiz-nav-btn:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    
+    /* Results Screen */
+    .results-container {
+      display: none;
+      min-height: 100vh;
+      padding: var(--space-lg);
+      padding-top: calc(var(--space-lg) + env(safe-area-inset-top));
+    }
+    
+    .results-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+    
+    .results-icon {
+      font-size: 80px;
+      margin-bottom: var(--space-md);
+    }
+    
+    .results-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .results-score {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      padding: var(--space-xl);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .results-score-value {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .results-score-value span {
+      font-size: 32px;
+      opacity: 0.8;
+    }
+    
+    .results-score-label {
+      font-size: 16px;
+      opacity: 0.9;
+    }
+    
+    .results-details {
+      text-align: left;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .results-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .results-detail-item:last-child {
+      border-bottom: none;
+    }
+    
+    .results-detail-label {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .results-detail-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .slide-in-left {
+      animation: slideInLeft 0.3s ease-out;
+    }
+    
+    .slide-in-right {
+      animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInLeft {
+      from {
+        transform: translateX(-100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Quiz Container -->
+  <div class="quiz-container" id="quiz-container">
+    
+    <div class="quiz-header">
+      <h1 class="quiz-title">Questionnaire Fin de Chantier</h1>
+      <p class="quiz-subtitle" id="chantier-name">Toiture Résidence Lumière</p>
+    </div>
+    
+    <div class="quiz-progress">
+      <div class="quiz-progress-fill" id="progress-fill"></div>
+    </div>
+    
+    <div class="quiz-question-number" id="question-number">
+      Question 1/10
+    </div>
+    
+    <div class="quiz-card" id="quiz-card">
+      <div class="quiz-question-text" id="question-text"></div>
+      
+      <div class="quiz-answers">
+        <button class="quiz-answer-btn yes" onclick="answer('oui')">
+          <span class="quiz-icon">✅</span>
+          <span>OUI</span>
+        </button>
+        <button class="quiz-answer-btn no" onclick="answer('non')">
+          <span class="quiz-icon">❌</span>
+          <span>NON</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="quiz-navigation">
+      <button class="quiz-nav-btn" id="prev-btn" onclick="previousQuestion()" disabled>
+        <span>←</span>
+        <span>Précédent</span>
+      </button>
+      <button class="quiz-nav-btn" id="skip-btn" onclick="skipQuestion()" style="display: none;">
+        <span>Passer</span>
+        <span>→</span>
+      </button>
+    </div>
+    
+  </div>
+
+  <!-- Results Container -->
+  <div class="results-container" id="results-container">
+    <div class="results-card">
+      <div class="results-icon">🎉</div>
+      <h2 class="results-title">Questionnaire Terminé !</h2>
+      
+      <div class="results-score">
+        <div class="results-score-value" id="final-score">85<span>/100</span></div>
+        <div class="results-score-label">Note P.I.A. Exécution</div>
+        <div style="font-size: 32px; margin-top: 12px;">⭐⭐⭐⭐⭐</div>
+      </div>
+      
+      <div class="results-details">
+        <div class="results-detail-item">
+          <span class="results-detail-label">Score terrain (70%)</span>
+          <span class="results-detail-value" id="terrain-score">90/100</span>
+        </div>
+        <div class="results-detail-item">
+          <span class="results-detail-label">Facteur preuve (30%)</span>
+          <span class="results-detail-value" id="preuve-factor">0.85x</span>
+        </div>
+        <div class="results-detail-item">
+          <span class="results-detail-label">Formule</span>
+          <span class="results-detail-value">90 × 0.85 = 85</span>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary btn-block" onclick="sendReport()">
+        <span>📤</span>
+        <span>Envoyer le Rapport</span>
+      </button>
+      
+      <button class="btn btn-outline btn-block" style="margin-top: 12px;" onclick="goToDashboard()">
+        Retour au Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // ============================================
+    // QUESTIONS DATA
+    // ============================================
+    
+    const questions = [
+      {
+        id: 1,
+        text: "Les travaux sont-ils conformes au devis initial ?",
+        type: "positive", // Oui = 1, Non = 0
+        category: "terrain"
+      },
+      {
+        id: 2,
+        text: "Y a-t-il eu des retards dans l'exécution des travaux ?",
+        type: "negative", // Oui = 0, Non = 1
+        category: "terrain"
+      },
+      {
+        id: 3,
+        text: "Y a-t-il eu des incidents de sécurité sur le chantier ?",
+        type: "negative",
+        category: "terrain"
+      },
+      {
+        id: 4,
+        text: "La qualité des matériaux utilisés est-elle satisfaisante ?",
+        type: "positive",
+        category: "terrain"
+      },
+      {
+        id: 5,
+        text: "Y a-t-il des malfaçons apparentes ?",
+        type: "negative",
+        category: "terrain"
+      },
+      {
+        id: 6,
+        text: "Y a-t-il eu des litiges avec le maître d'ouvrage ?",
+        type: "negative",
+        category: "terrain"
+      },
+      {
+        id: 7,
+        text: "Le chantier a-t-il été maintenu propre et organisé ?",
+        type: "positive",
+        category: "terrain"
+      },
+      {
+        id: 8,
+        text: "Disposez-vous de photos avant/pendant/après les travaux ?",
+        type: "positive",
+        category: "preuve"
+      },
+      {
+        id: 9,
+        text: "Avez-vous des documents techniques (plans, factures) ?",
+        type: "positive",
+        category: "preuve"
+      },
+      {
+        id: 10,
+        text: "Y a-t-il un PV de réception signé ?",
+        type: "positive",
+        category: "preuve"
+      }
+    ];
+    
+    // ============================================
+    // STATE
+    // ============================================
+    
+    let currentQuestionIndex = 0;
+    let answers = {};
+    let animationDirection = 'right';
+    
+    // ============================================
+    // DISPLAY QUESTION
+    // ============================================
+    
+    function displayQuestion(direction = 'right') {
+      const question = questions[currentQuestionIndex];
+      
+      // Update progress
+      const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+      document.getElementById('progress-fill').style.width = progress + '%';
+      
+      // Update question number
+      document.getElementById('question-number').textContent = 
+        `Question ${currentQuestionIndex + 1}/${questions.length}`;
+      
+      // Update question text with animation
+      const card = document.getElementById('quiz-card');
+      card.classList.remove('slide-in-left', 'slide-in-right');
+      
+      setTimeout(() => {
+        document.getElementById('question-text').textContent = question.text;
+        card.classList.add(direction === 'right' ? 'slide-in-right' : 'slide-in-left');
+      }, 50);
+      
+      // Update navigation buttons
+      document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    }
+    
+    // ============================================
+    // ANSWER QUESTION
+    // ============================================
+    
+    function answer(value) {
+      const question = questions[currentQuestionIndex];
+      answers[question.id] = value;
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([30, 50, 30]);
+      }
+      
+      // Move to next question or show results
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion('right');
+      } else {
+        showResults();
+      }
+    }
+    
+    // ============================================
+    // PREVIOUS QUESTION
+    // ============================================
+    
+    function previousQuestion() {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex--;
+        displayQuestion('left');
+      }
+    }
+    
+    // ============================================
+    // SKIP QUESTION (optional)
+    // ============================================
+    
+    function skipQuestion() {
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex++;
+        displayQuestion('right');
+      } else {
+        showResults();
+      }
+    }
+    
+    // ============================================
+    // CALCULATE SCORE
+    // ============================================
+    
+    function calculateScore() {
+      let terrainRaw = 0;
+      let terrainMax = 0;
+      let preuveRaw = 0;
+      let preuveMax = 0;
+      
+      questions.forEach(q => {
+        const answer = answers[q.id];
+        if (!answer) return;
+        
+        let points = 0;
+        if (q.type === 'positive') {
+          points = answer === 'oui' ? 1 : 0;
+        } else {
+          points = answer === 'non' ? 1 : 0;
+        }
+        
+        if (q.category === 'terrain') {
+          terrainRaw += points;
+          terrainMax += 1;
+        } else {
+          preuveRaw += points;
+          preuveMax += 1;
+        }
+      });
+      
+      // Calculate terrain score (0-100)
+      const terrainScore = terrainMax > 0 ? Math.round((terrainRaw / terrainMax) * 100) : 0;
+      
+      // Calculate preuve factor (0.70 to 1.00)
+      const preuveFactor = preuveMax > 0 ? 0.70 + 0.30 * (preuveRaw / preuveMax) : 0.70;
+      
+      // Final execution score
+      const executionScore = Math.round(terrainScore * preuveFactor);
+      
+      return {
+        terrainScore,
+        preuveFactor,
+        executionScore
+      };
+    }
+    
+    // ============================================
+    // SHOW RESULTS
+    // ============================================
+    
+    function showResults() {
+      const scores = calculateScore();
+      
+      // Hide quiz
+      document.getElementById('quiz-container').style.display = 'none';
+      
+      // Show results
+      document.getElementById('results-container').style.display = 'block';
+      
+      // Update scores
+      document.getElementById('final-score').innerHTML = 
+        scores.executionScore + '<span>/100</span>';
+      document.getElementById('terrain-score').textContent = 
+        scores.terrainScore + '/100';
+      document.getElementById('preuve-factor').textContent = 
+        scores.preuveFactor.toFixed(2) + 'x';
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([100, 50, 100, 50, 100]);
+      }
+      
+      // Log for debugging
+      console.log('📊 Scores:', scores);
+      console.log('📝 Answers:', answers);
+    }
+    
+    // ============================================
+    // SEND REPORT
+    // ============================================
+    
+    async function sendReport() {
+      const scores = calculateScore();
+      
+      // In production, send to API:
+      // await fetch('/tables/questionnaires', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     chantier_id: chantierId,
+      //     reponses: answers,
+      //     score_terrain: scores.terrainScore,
+      //     score_preuve: scores.preuveFactor,
+      //     score_execution: scores.executionScore,
+      //     date_completion: new Date().toISOString()
+      //   })
+      // });
+      
+      alert('✅ Rapport envoyé avec succès !\n\n' +
+            `Score P.I.A. Exécution: ${scores.executionScore}/100`);
+      
+      // Redirect to dashboard
+      setTimeout(() => {
+        goToDashboard();
+      }, 1000);
+    }
+    
+    // ============================================
+    // GO TO DASHBOARD
+    // ============================================
+    
+    function goToDashboard() {
+      window.location.href = '../dashboards/artisan.html';
+    }
+    
+    // ============================================
+    // SWIPE GESTURES
+    // ============================================
+    
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    document.getElementById('quiz-card').addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    document.getElementById('quiz-card').addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    });
+    
+    function handleSwipe() {
+      const swipeThreshold = 50;
+      const diff = touchStartX - touchEndX;
+      
+      if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+          // Swipe left (next - but we need an answer first)
+          // skipQuestion();
+        } else {
+          // Swipe right (previous)
+          previousQuestion();
+        }
+      }
+    }
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const chantierId = urlParams.get('chantier') || 'chantier-002';
+      
+      console.log('✅ Questionnaire loaded');
+      console.log('📝 Chantier ID:', chantierId);
+      
+      // Load chantier name (mock)
+      document.getElementById('chantier-name').textContent = 
+        'Toiture Résidence Lumière';
+      
+      // Display first question
+      displayQuestion('right');
+    });
+    
+  </script>
+
+</body>
+</html>

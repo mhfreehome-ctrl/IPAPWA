@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#10B981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Mon Chantier - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    :root {
+      --profile-color: #10B981;
+      --profile-color-light: #34D399;
+      --profile-color-dark: #059669;
+    }
+    
+    .mobile-header {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-bottom: none;
+    }
+    
+    .header-back, .header-menu {
+      color: white;
+    }
+    
+    /* Progress Steps */
+    .progress-container {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .progress-header {
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .progress-percentage {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--profile-color);
+      line-height: 1;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .progress-label {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .progress-bar-large {
+      height: 12px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-xl);
+    }
+    
+    .progress-fill-large {
+      height: 100%;
+      background: linear-gradient(90deg, var(--profile-color) 0%, var(--profile-color-light) 100%);
+      border-radius: var(--radius-full);
+      transition: width 0.5s ease;
+    }
+    
+    .steps-container {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .step {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+    
+    .step.completed {
+      background: #D1FAE5;
+    }
+    
+    .step.active {
+      background: #FEF3C7;
+      border: 2px solid var(--profile-color);
+    }
+    
+    .step-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: white;
+      flex-shrink: 0;
+    }
+    
+    .step.completed .step-icon {
+      background: var(--profile-color);
+      color: white;
+    }
+    
+    .step.active .step-icon {
+      background: #F59E0B;
+      color: white;
+    }
+    
+    .step-content {
+      flex: 1;
+    }
+    
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .step-date {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    
+    /* Payment Card */
+    .payment-card {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .payment-title {
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0.9;
+      margin-bottom: var(--space-md);
+    }
+    
+    .payment-items {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .payment-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .payment-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .payment-item-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    
+    .payment-item-value {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .payment-item-value.total {
+      font-size: 24px;
+    }
+    
+    /* Info Card */
+    .info-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    
+    .info-label {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .info-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    /* Action Buttons */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .action-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      text-align: center;
+      text-decoration: none;
+      color: var(--text);
+      box-shadow: var(--shadow-md);
+      transition: all 0.2s;
+    }
+    
+    .action-card:active {
+      transform: scale(0.98);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .action-card-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .action-card-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    
+    .bottom-nav-item.active {
+      color: var(--profile-color);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <button class="header-back" onclick="window.location.href='../index.html'" aria-label="Retour">
+      ←
+    </button>
+    
+    <div class="header-title">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>🏠</span>
+        <span>Mon Chantier</span>
+      </div>
+    </div>
+    
+    <button class="header-menu" onclick="showMenu()" aria-label="Menu">
+      ⋮
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- Progress Card -->
+    <div class="progress-container fade-in">
+      <div class="progress-header">
+        <div class="progress-percentage" id="progress-pct">60%</div>
+        <div class="progress-label">Progression des travaux</div>
+      </div>
+      
+      <div class="progress-bar-large">
+        <div class="progress-fill-large" id="progress-fill" style="width: 60%;"></div>
+      </div>
+      
+      <!-- Steps -->
+      <div class="steps-container">
+        <div class="step completed">
+          <div class="step-icon">✓</div>
+          <div class="step-content">
+            <div class="step-title">Devis signé</div>
+            <div class="step-date">Terminé le 1er déc. 2025</div>
+          </div>
+        </div>
+        
+        <div class="step completed">
+          <div class="step-icon">✓</div>
+          <div class="step-content">
+            <div class="step-title">Début des travaux</div>
+            <div class="step-date">Démarré le 15 déc. 2025</div>
+          </div>
+        </div>
+        
+        <div class="step active">
+          <div class="step-icon">⚡</div>
+          <div class="step-content">
+            <div class="step-title">Travaux en cours</div>
+            <div class="step-date">Progression : 60%</div>
+          </div>
+        </div>
+        
+        <div class="step">
+          <div class="step-icon">⏳</div>
+          <div class="step-content">
+            <div class="step-title">Réception</div>
+            <div class="step-date">Prévue le 31 janv. 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Card -->
+    <div class="payment-card">
+      <div class="payment-title">💰 PAIEMENTS</div>
+      <div class="payment-items">
+        <div class="payment-item">
+          <span class="payment-item-label">Total TTC</span>
+          <span class="payment-item-value total" id="montant-total">35 000€</span>
+        </div>
+        <div class="payment-item">
+          <span class="payment-item-label">Déjà versé</span>
+          <span class="payment-item-value" id="montant-verse">21 000€</span>
+        </div>
+        <div class="payment-item">
+          <span class="payment-item-label">En séquestre</span>
+          <span class="payment-item-value" id="montant-sequestre">14 000€</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chantier Info -->
+    <div class="info-card">
+      <h3 style="margin-top: 0; margin-bottom: var(--space-md); font-size: 16px;">📋 Informations chantier</h3>
+      
+      <div class="info-row">
+        <span class="info-label">Chantier</span>
+        <span class="info-value" id="chantier-nom">Toiture Résidence</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Adresse</span>
+        <span class="info-value" id="chantier-adresse">Lyon 3e</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Artisan</span>
+        <span class="info-value" id="artisan-nom">Martin Dubois</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Téléphone</span>
+        <span class="info-value">
+          <a href="tel:+33612345678" style="color: var(--profile-color); text-decoration: none;">06 12 34 56 78</a>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Date fin prévue</span>
+        <span class="info-value" id="date-fin">31 janv. 2026</span>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="section-title">⚡ Actions rapides</div>
+    
+    <div class="actions-grid">
+      <a href="#" class="action-card" onclick="viewPhotos(); return false;">
+        <div class="action-card-icon">📸</div>
+        <div class="action-card-title">Voir les photos</div>
+      </a>
+      
+      <a href="#" class="action-card" onclick="contactArtisan(); return false;">
+        <div class="action-card-icon">💬</div>
+        <div class="action-card-title">Contacter artisan</div>
+      </a>
+      
+      <a href="#" class="action-card" onclick="viewDocuments(); return false;">
+        <div class="action-card-icon">📄</div>
+        <div class="action-card-title">Mes documents</div>
+      </a>
+      
+      <a href="#" class="action-card" onclick="reportIssue(); return false;">
+        <div class="action-card-icon">⚠️</div>
+        <div class="action-card-title">Signaler problème</div>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="../index.html" class="bottom-nav-item">
+      <div class="bottom-nav-icon">🏠</div>
+      <div class="bottom-nav-label">Accueil</div>
+    </a>
+    <a href="b2c.html" class="bottom-nav-item active">
+      <div class="bottom-nav-icon">📊</div>
+      <div class="bottom-nav-label">Mon chantier</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="viewPhotos(); return false;">
+      <div class="bottom-nav-icon">📸</div>
+      <div class="bottom-nav-label">Photos</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="showMenu(); return false;">
+      <div class="bottom-nav-icon">👤</div>
+      <div class="bottom-nav-label">Profil</div>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script>
+    // ============================================
+    // LOAD DATA (Mock for now)
+    // ============================================
+    
+    function loadChantierData() {
+      // Mock data - will be replaced by API
+      const chantier = {
+        id: 'chantier-b2c-001',
+        nom: 'Toiture Résidence',
+        adresse: 'Lyon 3e',
+        artisan_nom: 'Martin Dubois',
+        artisan_tel: '+33612345678',
+        montant_ttc: 35000,
+        montant_verse: 21000,
+        montant_sequestre: 14000,
+        progression: 60,
+        date_fin: '2026-01-31',
+        etapes: [
+          { nom: 'Devis signé', statut: 'completed', date: '2025-12-01' },
+          { nom: 'Début des travaux', statut: 'completed', date: '2025-12-15' },
+          { nom: 'Travaux en cours', statut: 'active', progression: 60 },
+          { nom: 'Réception', statut: 'pending', date: '2026-01-31' }
+        ]
+      };
+      
+      // Update DOM
+      document.getElementById('progress-pct').textContent = chantier.progression + '%';
+      document.getElementById('progress-fill').style.width = chantier.progression + '%';
+      
+      document.getElementById('montant-total').textContent = 
+        chantier.montant_ttc.toLocaleString('fr-FR') + '€';
+      document.getElementById('montant-verse').textContent = 
+        chantier.montant_verse.toLocaleString('fr-FR') + '€';
+      document.getElementById('montant-sequestre').textContent = 
+        chantier.montant_sequestre.toLocaleString('fr-FR') + '€';
+      
+      document.getElementById('chantier-nom').textContent = chantier.nom;
+      document.getElementById('chantier-adresse').textContent = chantier.adresse;
+      document.getElementById('artisan-nom').textContent = chantier.artisan_nom;
+      
+      const dateFin = new Date(chantier.date_fin);
+      document.getElementById('date-fin').textContent = 
+        dateFin.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    
+    // ============================================
+    // ACTIONS
+    // ============================================
+    
+    function viewPhotos() {
+      alert('📸 Galerie photos\n\n' +
+            '• 12 photos du chantier\n' +
+            '• Mises à jour par l\'artisan\n' +
+            '• Organisées par date');
+      // TODO: Implement photo gallery page
+    }
+    
+    function contactArtisan() {
+      const choice = confirm('💬 Contacter Martin Dubois\n\nAppeler maintenant ?');
+      if (choice) {
+        window.location.href = 'tel:+33612345678';
+      }
+    }
+    
+    function viewDocuments() {
+      alert('📄 Mes documents\n\n' +
+            '• Devis signé\n' +
+            '• Factures\n' +
+            '• Assurances\n' +
+            '• PV de réception (à venir)');
+      // TODO: Implement documents page
+    }
+    
+    function reportIssue() {
+      const confirmed = confirm('⚠️ Signaler un problème\n\n' +
+            'Vous allez ouvrir un dossier de médiation.\n' +
+            'Continuer ?');
+      if (confirmed) {
+        alert('Fonctionnalité à venir : formulaire de signalement avec upload photos');
+        // TODO: Redirect to incident reporting
+      }
+    }
+    
+    function showMenu() {
+      alert('Menu:\n\n' +
+            '• Mon profil\n' +
+            '• Mes paiements\n' +
+            '• Mes documents\n' +
+            '• Aide & FAQ\n' +
+            '• Déconnexion');
+    }
+    
+    // ============================================
+    // HAPTIC FEEDBACK
+    // ============================================
+    
+    document.querySelectorAll('.action-card').forEach(card => {
+      card.addEventListener('click', () => {
+        if (navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+      });
+    });
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadChantierData();
+      console.log('✅ Dashboard B2C loaded');
+    });
+    
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#F59E0B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Dashboard Artisan - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    /* Artisan-specific theme */
+    :root {
+      --profile-color: #F59E0B;
+      --profile-color-light: #FCD34D;
+      --profile-color-dark: #D97706;
+    }
+    
+    .mobile-header {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-bottom: none;
+    }
+    
+    .header-back,
+    .header-menu {
+      color: white;
+    }
+    
+    .header-back:active {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .score-card {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      text-align: center;
+      margin-bottom: var(--space-md);
+    }
+    
+    .score-display {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .score-display span {
+      font-size: 32px;
+      opacity: 0.8;
+    }
+    
+    .score-stars {
+      font-size: 32px;
+      margin-bottom: var(--space-md);
+      letter-spacing: 4px;
+    }
+    
+    .score-details {
+      display: flex;
+      justify-content: space-around;
+      padding-top: var(--space-md);
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .score-detail {
+      text-align: center;
+    }
+    
+    .score-detail-value {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .score-detail-label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    
+    .chantier-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .chantier-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-md);
+    }
+    
+    .chantier-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+    
+    .chantier-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      background: #DBEAFE;
+      color: #1E40AF;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .chantier-status.en-cours {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+    
+    .chantier-info {
+      display: flex;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .chantier-info-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      margin-bottom: var(--space-md);
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--profile-color) 0%, var(--profile-color-light) 100%);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+    
+    .chantier-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+    
+    .action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: 12px;
+      border-radius: var(--radius-md);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: var(--touch-target);
+    }
+    
+    .action-btn-primary {
+      background: var(--profile-color);
+      color: white;
+    }
+    
+    .action-btn-primary:active {
+      background: var(--profile-color-dark);
+      transform: scale(0.98);
+    }
+    
+    .action-btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text);
+    }
+    
+    .action-btn-secondary:active {
+      background: #D1D5DB;
+    }
+    
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 12px;
+    }
+    
+    .bottom-nav-item.active {
+      color: var(--profile-color);
+    }
+    
+    .fab {
+      background: var(--profile-color);
+    }
+    
+    .fab:active {
+      background: var(--profile-color-dark);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-light);
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <button class="header-back" onclick="window.location.href='../index.html'" aria-label="Retour">
+      ←
+    </button>
+    
+    <div class="header-title">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>👷</span>
+        <span>Artisan</span>
+      </div>
+    </div>
+    
+    <button class="header-menu" onclick="toggleMenu()" aria-label="Menu">
+      ⋮
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- Score P.I.A. Card -->
+    <div class="score-card fade-in">
+      <div style="font-size: 14px; font-weight: 600; opacity: 0.9; margin-bottom: 8px;">SCORE P.I.A.</div>
+      <div class="score-display" id="score-value">78<span>/100</span></div>
+      <div class="score-stars">⭐⭐⭐⭐⭐</div>
+      
+      <div class="score-details">
+        <div class="score-detail">
+          <div class="score-detail-value" id="chantiers-termines">12</div>
+          <div class="score-detail-label">Chantiers<br>terminés</div>
+        </div>
+        <div class="score-detail">
+          <div class="score-detail-value" id="note-moyenne">82<span style="font-size: 14px;">/100</span></div>
+          <div class="score-detail-label">Note moyenne<br>exécution</div>
+        </div>
+        <div class="score-detail">
+          <div class="score-detail-value" id="taux-reception">75<span style="font-size: 14px;">%</span></div>
+          <div class="score-detail-label">Réceptions<br>sans réserve</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-title">🏗️ Mon chantier actif</div>
+
+    <!-- Chantier Card -->
+    <div class="chantier-card fade-in" id="chantier-container">
+      <div class="chantier-header">
+        <h3 class="chantier-title">Toiture Résidence Lumière</h3>
+        <span class="chantier-status en-cours">● En cours</span>
+      </div>
+      
+      <div class="chantier-info">
+        <div class="chantier-info-item">
+          <span>💰</span>
+          <span id="chantier-montant">35 000€</span>
+        </div>
+        <div class="chantier-info-item">
+          <span>📍</span>
+          <span id="chantier-ville">Lyon 3e</span>
+        </div>
+        <div class="chantier-info-item">
+          <span>📅</span>
+          <span id="chantier-echeance">15 jours restants</span>
+        </div>
+      </div>
+      
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <span style="font-size: 14px; font-weight: 600;">Progression</span>
+        <span style="font-size: 14px; font-weight: 600; color: var(--profile-color);" id="progression-pct">60%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width: 60%;"></div>
+      </div>
+      
+      <div class="chantier-actions">
+        <a href="../actions/upload-photo.html?chantier=chantier-002" class="action-btn action-btn-primary">
+          <span>📷</span>
+          <span>Ajouter photos</span>
+        </a>
+        <a href="../actions/questionnaire.html?chantier=chantier-002" class="action-btn action-btn-secondary">
+          <span>✅</span>
+          <span>Questionnaire</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <div class="empty-state-icon">🏗️</div>
+      <h3>Aucun chantier actif</h3>
+      <p>Vous n'avez pas de chantier en cours pour le moment.</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title" style="margin-top: var(--space-lg);">⚡ Actions rapides</div>
+    
+    <div class="card">
+      <a href="#" class="action-btn action-btn-secondary" style="width: 100%; margin-bottom: 8px;">
+        <span>📄</span>
+        <span>Mes documents</span>
+      </a>
+      <a href="#" class="action-btn action-btn-secondary" style="width: 100%; margin-bottom: 8px;">
+        <span>💰</span>
+        <span>Mes cautions</span>
+      </a>
+      <a href="#" class="action-btn action-btn-secondary" style="width: 100%;">
+        <span>📊</span>
+        <span>Historique chantiers</span>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="../index.html" class="bottom-nav-item">
+      <div class="bottom-nav-icon">🏠</div>
+      <div class="bottom-nav-label">Accueil</div>
+    </a>
+    <a href="artisan.html" class="bottom-nav-item active">
+      <div class="bottom-nav-icon">📊</div>
+      <div class="bottom-nav-label">Dashboard</div>
+    </a>
+    <a href="../actions/upload-photo.html" class="bottom-nav-item">
+      <div class="bottom-nav-icon">📸</div>
+      <div class="bottom-nav-label">Photos</div>
+    </a>
+    <a href="#" class="bottom-nav-item">
+      <div class="bottom-nav-icon">👤</div>
+      <div class="bottom-nav-label">Profil</div>
+    </a>
+  </nav>
+
+  <!-- FAB (Floating Action Button) -->
+  <button class="fab" onclick="window.location.href='../actions/upload-photo.html'" aria-label="Prendre une photo">
+    📸
+  </button>
+
+  <!-- Scripts -->
+  <script>
+    // ============================================
+    // LOAD CHANTIER DATA (Mock for now, API later)
+    // ============================================
+    
+    function loadChantiersData() {
+      // Mock data - will be replaced by API call
+      const chantier = {
+        id: 'chantier-002',
+        nom: 'Toiture Résidence Lumière',
+        montant_ttc: 35000,
+        ville: 'Lyon 3e',
+        statut: 'En cours',
+        progression: 60,
+        date_fin: '2026-02-05',
+        artisan_id: 'user-artisan-001'
+      };
+      
+      // Calculate days remaining
+      const today = new Date();
+      const dateFin = new Date(chantier.date_fin);
+      const diffTime = dateFin - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Update DOM
+      document.getElementById('chantier-montant').textContent = 
+        chantier.montant_ttc.toLocaleString('fr-FR') + '€';
+      document.getElementById('chantier-ville').textContent = chantier.ville;
+      document.getElementById('chantier-echeance').textContent = 
+        diffDays > 0 ? `${diffDays} jours restants` : 'Échéance dépassée';
+      document.getElementById('progression-pct').textContent = chantier.progression + '%';
+      document.getElementById('progress-fill').style.width = chantier.progression + '%';
+      
+      // Show/hide appropriate elements
+      document.getElementById('chantier-container').style.display = 'block';
+      document.getElementById('empty-state').style.display = 'none';
+    }
+    
+    // ============================================
+    // LOAD SCORE DATA
+    // ============================================
+    
+    function loadScoreData() {
+      // Mock data - will be replaced by API call
+      const scoreData = {
+        score_pia: 78,
+        chantiers_termines: 12,
+        note_moyenne: 82,
+        taux_reception: 75
+      };
+      
+      document.getElementById('score-value').innerHTML = 
+        scoreData.score_pia + '<span>/100</span>';
+      document.getElementById('chantiers-termines').textContent = 
+        scoreData.chantiers_termines;
+      document.getElementById('note-moyenne').innerHTML = 
+        scoreData.note_moyenne + '<span style="font-size: 14px;">/100</span>';
+      document.getElementById('taux-reception').innerHTML = 
+        scoreData.taux_reception + '<span style="font-size: 14px;">%</span>';
+    }
+    
+    // ============================================
+    // MENU TOGGLE
+    // ============================================
+    
+    function toggleMenu() {
+      alert('Menu:\n\n- Mon profil\n- Mes documents\n- Paramètres\n- Déconnexion');
+      // TODO: Implement proper menu modal
+    }
+    
+    // ============================================
+    // HAPTIC FEEDBACK
+    // ============================================
+    
+    document.querySelectorAll('.action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+      });
+    });
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadScoreData();
+      loadChantiersData();
+      
+      // Log for debugging
+      console.log('✅ Dashboard Artisan loaded');
+    });
+    
+    // ============================================
+    // PULL TO REFRESH (basic implementation)
+    // ============================================
+    
+    let touchStartY = 0;
+    let pullDistance = 0;
+    
+    document.addEventListener('touchstart', (e) => {
+      if (window.scrollY === 0) {
+        touchStartY = e.touches[0].clientY;
+      }
+    });
+    
+    document.addEventListener('touchmove', (e) => {
+      if (window.scrollY === 0 && touchStartY > 0) {
+        pullDistance = e.touches[0].clientY - touchStartY;
+        if (pullDistance > 80) {
+          // Visual feedback could be added here
+        }
+      }
+    });
+    
+    document.addEventListener('touchend', () => {
+      if (pullDistance > 80) {
+        // Refresh data
+        console.log('🔄 Refreshing data...');
+        loadScoreData();
+        loadChantiersData();
+      }
+      touchStartY = 0;
+      pullDistance = 0;
+    });
+
+  </script>
+
+</body>
+</html>

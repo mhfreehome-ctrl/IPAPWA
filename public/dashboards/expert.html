@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#8B5CF6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Dashboard Expert - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    :root {
+      --profile-color: #8B5CF6;
+      --profile-color-light: #A78BFA;
+      --profile-color-dark: #7C3AED;
+    }
+    
+    .mobile-header {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-bottom: none;
+    }
+    
+    .header-back, .header-menu {
+      color: white;
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--profile-color);
+      line-height: 1;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-light);
+    }
+    
+    /* Dossiers List */
+    .dossiers-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .dossier-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .dossier-card:active {
+      transform: scale(0.98);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .dossier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .dossier-number {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--profile-color);
+      margin-bottom: 4px;
+    }
+    
+    .dossier-urgent {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #FEE2E2;
+      color: #DC2626;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .dossier-urgent.normal {
+      background: #FEF3C7;
+      color: #D97706;
+    }
+    
+    .dossier-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .dossier-meta {
+      display: flex;
+      gap: var(--space-md);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    
+    .dossier-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .dossier-ia-score {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm);
+      background: #F3F4F6;
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .dossier-ia-label {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    
+    .dossier-ia-value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--profile-color);
+    }
+    
+    .dossier-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+    }
+    
+    .dossier-action-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 8px;
+      background: var(--bg-secondary);
+      border: none;
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+    }
+    
+    .dossier-action-btn.primary {
+      background: var(--profile-color);
+      color: white;
+    }
+    
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: var(--space-sm);
+      overflow-x: auto;
+      margin-bottom: var(--space-lg);
+      padding-bottom: var(--space-xs);
+    }
+    
+    .filter-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-full);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .filter-chip.active {
+      background: var(--profile-color);
+      color: white;
+      border-color: var(--profile-color);
+    }
+    
+    .bottom-nav-item.active {
+      color: var(--profile-color);
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-light);
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <button class="header-back" onclick="window.location.href='../index.html'" aria-label="Retour">
+      ←
+    </button>
+    
+    <div class="header-title">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>⚖️</span>
+        <span>Expert</span>
+      </div>
+    </div>
+    
+    <button class="header-menu" onclick="showMenu()" aria-label="Menu">
+      ⋮
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- Stats -->
+    <div class="stats-grid fade-in">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-urgent">2</div>
+        <div class="stat-label">Urgents</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-encours">5</div>
+        <div class="stat-label">En cours</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-clotures">18</div>
+        <div class="stat-label">Clôturés</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <button class="filter-chip active" onclick="filterDossiers('tous')">
+        Tous (5)
+      </button>
+      <button class="filter-chip" onclick="filterDossiers('urgent')">
+        ⚠️ Urgents (2)
+      </button>
+      <button class="filter-chip" onclick="filterDossiers('ia')">
+        🤖 IA (3)
+      </button>
+      <button class="filter-chip" onclick="filterDossiers('expert')">
+        👤 Expert (2)
+      </button>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-title">⚖️ Dossiers d'arbitrage</div>
+
+    <!-- Dossiers List -->
+    <div class="dossiers-list" id="dossiers-list">
+      <!-- Dossiers will be inserted here -->
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <div class="empty-state-icon">⚖️</div>
+      <h3>Aucun dossier</h3>
+      <p>Vous n'avez pas de dossier d'arbitrage en cours</p>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="../index.html" class="bottom-nav-item">
+      <div class="bottom-nav-icon">🏠</div>
+      <div class="bottom-nav-label">Accueil</div>
+    </a>
+    <a href="expert.html" class="bottom-nav-item active">
+      <div class="bottom-nav-icon">⚖️</div>
+      <div class="bottom-nav-label">Dossiers</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="viewStats(); return false;">
+      <div class="bottom-nav-icon">📊</div>
+      <div class="bottom-nav-label">Stats</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="showMenu(); return false;">
+      <div class="bottom-nav-icon">👤</div>
+      <div class="bottom-nav-label">Profil</div>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script>
+    // ============================================
+    // LOAD DATA (Mock)
+    // ============================================
+    
+    function loadDashboardData() {
+      // Mock data
+      const stats = {
+        urgent: 2,
+        encours: 5,
+        clotures: 18
+      };
+      
+      const dossiers = [
+        {
+          id: 'A-2049',
+          numero: 'A-2049',
+          titre: 'Malfaçon étanchéité toiture',
+          chantier: 'Toiture Résidence Lumière',
+          ville: 'Lyon 3e',
+          gravite: 'Elevée',
+          urgence: 'Urgent',
+          niveau: 'IA (N1)',
+          score_ia: 0.76,
+          nb_photos: 12,
+          date_ouverture: '2026-01-15'
+        },
+        {
+          id: 'A-2048',
+          numero: 'A-2048',
+          titre: 'Retard exécution travaux',
+          chantier: 'Groupe MERCY',
+          ville: 'Rosny-sous-Bois',
+          gravite: 'Moyenne',
+          urgence: 'Normal',
+          niveau: 'IA (N1)',
+          score_ia: 0.62,
+          nb_photos: 8,
+          date_ouverture: '2026-01-12'
+        },
+        {
+          id: 'A-2047',
+          numero: 'A-2047',
+          titre: 'Non-conformité matériaux',
+          chantier: 'Rénovation Bureau',
+          ville: 'Paris 11e',
+          gravite: 'Faible',
+          urgence: 'Normal',
+          niveau: 'Expert (N3)',
+          score_ia: null,
+          nb_photos: 15,
+          date_ouverture: '2026-01-10'
+        }
+      ];
+      
+      // Update stats
+      document.getElementById('stat-urgent').textContent = stats.urgent;
+      document.getElementById('stat-encours').textContent = stats.encours;
+      document.getElementById('stat-clotures').textContent = stats.clotures;
+      
+      // Render dossiers
+      renderDossiers(dossiers);
+    }
+    
+    // ============================================
+    // RENDER DOSSIERS
+    // ============================================
+    
+    function renderDossiers(dossiers) {
+      const container = document.getElementById('dossiers-list');
+      container.innerHTML = '';
+      
+      if (dossiers.length === 0) {
+        document.getElementById('empty-state').style.display = 'block';
+        return;
+      }
+      
+      dossiers.forEach(d => {
+        const card = document.createElement('div');
+        card.className = 'dossier-card fade-in';
+        card.onclick = () => viewDossier(d.id);
+        
+        const urgenceClass = d.urgence === 'Urgent' ? '' : 'normal';
+        const scoreIAHtml = d.score_ia ? `
+          <div class="dossier-ia-score">
+            <span class="dossier-ia-label">🤖 Confiance IA</span>
+            <span class="dossier-ia-value">${Math.round(d.score_ia * 100)}%</span>
+          </div>
+        ` : '';
+        
+        card.innerHTML = `
+          <div class="dossier-header">
+            <div>
+              <div class="dossier-number">${d.numero}</div>
+            </div>
+            <span class="dossier-urgent ${urgenceClass}">⚠️ ${d.urgence}</span>
+          </div>
+          
+          <div class="dossier-title">${d.titre}</div>
+          
+          <div class="dossier-meta">
+            <span class="dossier-meta-item">
+              <span>🏗️</span>
+              <span>${d.chantier}</span>
+            </span>
+            <span class="dossier-meta-item">
+              <span>📍</span>
+              <span>${d.ville}</span>
+            </span>
+            <span class="dossier-meta-item">
+              <span>📸</span>
+              <span>${d.nb_photos} photos</span>
+            </span>
+            <span class="dossier-meta-item">
+              <span>⚖️</span>
+              <span>${d.niveau}</span>
+            </span>
+          </div>
+          
+          ${scoreIAHtml}
+          
+          <div class="dossier-actions">
+            <button class="dossier-action-btn primary" onclick="event.stopPropagation(); viewDocuments('${d.id}')">
+              <span>📄</span>
+              <span>Documents</span>
+            </button>
+            <button class="dossier-action-btn" onclick="event.stopPropagation(); writeSynthesis('${d.id}')">
+              <span>✍️</span>
+              <span>Synthèse</span>
+            </button>
+          </div>
+        `;
+        
+        container.appendChild(card);
+      });
+    }
+    
+    // ============================================
+    // ACTIONS
+    // ============================================
+    
+    function viewDossier(id) {
+      alert(`📋 Dossier ${id}\n\nOuvrir le détail complet avec :\n\n` +
+            '• Photos du litige\n' +
+            '• Documents techniques\n' +
+            '• Historique communications\n' +
+            '• Rapports précédents');
+      // TODO: Navigate to dossier detail page
+    }
+    
+    function viewDocuments(id) {
+      alert(`📄 Documents du dossier ${id}\n\n` +
+            '• Photos (12)\n' +
+            '• Devis initial\n' +
+            '• Plans techniques\n' +
+            '• Correspondances');
+    }
+    
+    function writeSynthesis(id) {
+      if (confirm(`✍️ Rédiger synthèse ${id}\n\nOuvrir l'éditeur ?`)) {
+        alert('Éditeur de synthèse:\n\n' +
+              '• Constat technique\n' +
+              '• Analyse juridique\n' +
+              '• Responsabilités\n' +
+              '• Recommandations\n' +
+              '• Montant arbitrage');
+      }
+    }
+    
+    function filterDossiers(filter) {
+      alert(`Filtre: ${filter}\n\nFonctionnalité à implémenter`);
+      // TODO: Filter dossiers by type
+    }
+    
+    function viewStats() {
+      alert('📊 Mes statistiques\n\n' +
+            '• Dossiers traités: 18\n' +
+            '• Taux de résolution: 94%\n' +
+            '• Délai moyen: 12 jours\n' +
+            '• Satisfaction: 4.8/5');
+    }
+    
+    function showMenu() {
+      alert('Menu:\n\n' +
+            '• Mon profil expert\n' +
+            '• Mes qualifications\n' +
+            '• Calendrier\n' +
+            '• Paramètres\n' +
+            '• Déconnexion');
+    }
+    
+    // ============================================
+    // HAPTIC FEEDBACK
+    // ============================================
+    
+    document.querySelectorAll('.dossier-card, .filter-chip').forEach(el => {
+      el.addEventListener('click', () => {
+        if (navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+      });
+    });
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboardData();
+      console.log('✅ Dashboard Expert loaded');
+    });
+    
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#F59E0B">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Ajouter des Photos - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    :root {
+      --profile-color: #F59E0B;
+      --profile-color-dark: #D97706;
+    }
+    
+    .mobile-header {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-bottom: none;
+    }
+    
+    .header-back, .header-menu {
+      color: white;
+    }
+    
+    /* Camera/Gallery Buttons */
+    .upload-options {
+      display: grid;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .upload-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-xl);
+      background: white;
+      border-radius: var(--radius-lg);
+      border: 2px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+      min-height: 140px;
+      text-decoration: none;
+      color: var(--text);
+    }
+    
+    .upload-btn:active {
+      transform: scale(0.98);
+      background: var(--bg-secondary);
+    }
+    
+    .upload-btn-icon {
+      font-size: 64px;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .upload-btn-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .upload-btn-desc {
+      font-size: 14px;
+      color: var(--text-light);
+      text-align: center;
+    }
+    
+    /* Photo Preview */
+    .photo-preview-container {
+      display: none;
+      margin-bottom: var(--space-lg);
+    }
+    
+    .photo-preview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-md);
+      background: #000;
+    }
+    
+    /* Form Fields */
+    .form-field {
+      margin-bottom: var(--space-md);
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      color: var(--text);
+    }
+    
+    .form-select,
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: white;
+      color: var(--text);
+      font-family: inherit;
+      min-height: var(--touch-target);
+    }
+    
+    .form-select:focus,
+    .form-input:focus {
+      outline: none;
+      border-color: var(--profile-color);
+    }
+    
+    .form-input {
+      resize: vertical;
+      min-height: 80px;
+    }
+    
+    /* Gallery */
+    .gallery {
+      margin-bottom: var(--space-lg);
+    }
+    
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-sm);
+    }
+    
+    .gallery-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-secondary);
+    }
+    
+    .gallery-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .gallery-delete {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: none;
+      border-radius: var(--radius-full);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Hidden file inputs */
+    #camera-input,
+    #gallery-input {
+      display: none;
+    }
+    
+    /* Success Message */
+    .success-message {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: var(--space-lg);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      text-align: center;
+      z-index: 1000;
+      min-width: 280px;
+    }
+    
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <button class="header-back" onclick="goBack()" aria-label="Retour">
+      ←
+    </button>
+    
+    <div class="header-title">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>📸</span>
+        <span>Ajouter Photos</span>
+      </div>
+    </div>
+    
+    <button class="header-menu" onclick="showHelp()" aria-label="Aide">
+      ?
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- Chantier Info -->
+    <div class="card" style="margin-bottom: var(--space-lg); background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%); color: white;">
+      <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">CHANTIER</div>
+      <h2 style="margin: 0; font-size: 18px;" id="chantier-name">Toiture Résidence Lumière</h2>
+    </div>
+
+    <!-- Upload Options (Default View) -->
+    <div id="upload-options-view">
+      <div class="upload-options">
+        <label for="camera-input" class="upload-btn">
+          <div class="upload-btn-icon">📷</div>
+          <div class="upload-btn-title">Prendre une photo</div>
+          <div class="upload-btn-desc">Accès direct à la caméra</div>
+        </label>
+        
+        <label for="gallery-input" class="upload-btn">
+          <div class="upload-btn-icon">🖼️</div>
+          <div class="upload-btn-title">Choisir depuis galerie</div>
+          <div class="upload-btn-desc">Sélectionner des photos existantes</div>
+        </label>
+      </div>
+      
+      <!-- Recent Photos -->
+      <div class="gallery" id="recent-photos" style="display: none;">
+        <div class="section-title">📸 Photos récentes (3)</div>
+        <div class="gallery-grid" id="gallery-grid">
+          <!-- Photos will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Photo Preview & Context Form (Hidden by default) -->
+    <div id="photo-form-view" style="display: none;">
+      
+      <div class="photo-preview-container" id="preview-container">
+        <img id="photo-preview" class="photo-preview" alt="Photo preview">
+        
+        <div style="display: flex; gap: var(--space-sm); margin-bottom: var(--space-lg);">
+          <button class="btn btn-outline" style="flex: 1;" onclick="cancelPhoto()">
+            <span>✗</span>
+            <span>Annuler</span>
+          </button>
+          <button class="btn btn-primary" style="flex: 1;" onclick="retakePhoto()">
+            <span>🔄</span>
+            <span>Refaire</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Context Form -->
+      <div class="card">
+        <h3 style="margin-top: 0;">Contexte de la photo</h3>
+        
+        <div class="form-field">
+          <label class="form-label" for="lot">Lot concerné *</label>
+          <select id="lot" class="form-select" required>
+            <option value="">Sélectionner...</option>
+            <option value="Charpente" selected>Charpente</option>
+            <option value="Couverture">Couverture</option>
+            <option value="Étanchéité">Étanchéité</option>
+            <option value="Zinguerie">Zinguerie</option>
+            <option value="Isolation">Isolation</option>
+            <option value="Finitions">Finitions</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label class="form-label" for="zone">Zone du chantier *</label>
+          <select id="zone" class="form-select" required>
+            <option value="">Sélectionner...</option>
+            <option value="Toiture" selected>Toiture</option>
+            <option value="Façade Nord">Façade Nord</option>
+            <option value="Façade Sud">Façade Sud</option>
+            <option value="Façade Est">Façade Est</option>
+            <option value="Façade Ouest">Façade Ouest</option>
+            <option value="Intérieur">Intérieur</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label class="form-label" for="note">Note (optionnel)</label>
+          <textarea 
+            id="note" 
+            class="form-input" 
+            placeholder="Ex: Vue d'ensemble avant pose isolation..."
+          ></textarea>
+        </div>
+        
+        <button class="btn btn-primary btn-block" onclick="uploadPhoto()">
+          <span>✓</span>
+          <span>Valider et Enregistrer</span>
+        </button>
+      </div>
+      
+    </div>
+
+  </main>
+
+  <!-- Hidden File Inputs -->
+  <input 
+    type="file" 
+    id="camera-input" 
+    accept="image/*" 
+    capture="environment"
+    onchange="handlePhotoCapture(event)"
+  >
+  <input 
+    type="file" 
+    id="gallery-input" 
+    accept="image/*" 
+    multiple
+    onchange="handleGallerySelect(event)"
+  >
+
+  <!-- Success Message -->
+  <div class="overlay" id="overlay"></div>
+  <div class="success-message" id="success-message">
+    <div class="success-icon">✅</div>
+    <h3 style="margin: 0 0 8px 0;">Photo enregistrée !</h3>
+    <p style="margin: 0; color: var(--text-light);">La photo a été ajoutée au chantier</p>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    let currentPhoto = null;
+    let uploadedPhotos = [];
+    
+    // ============================================
+    // GET CHANTIER ID FROM URL
+    // ============================================
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const chantierId = urlParams.get('chantier') || 'chantier-002';
+    
+    // ============================================
+    // HANDLE PHOTO CAPTURE (Camera)
+    // ============================================
+    
+    function handlePhotoCapture(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      currentPhoto = {
+        file: file,
+        url: URL.createObjectURL(file),
+        timestamp: Date.now()
+      };
+      
+      showPhotoForm();
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10);
+      }
+    }
+    
+    // ============================================
+    // HANDLE GALLERY SELECT
+    // ============================================
+    
+    function handleGallerySelect(event) {
+      const files = Array.from(event.target.files);
+      if (files.length === 0) return;
+      
+      // For now, handle first photo only
+      const file = files[0];
+      currentPhoto = {
+        file: file,
+        url: URL.createObjectURL(file),
+        timestamp: Date.now()
+      };
+      
+      showPhotoForm();
+    }
+    
+    // ============================================
+    // SHOW PHOTO FORM
+    // ============================================
+    
+    function showPhotoForm() {
+      document.getElementById('upload-options-view').style.display = 'none';
+      document.getElementById('photo-form-view').style.display = 'block';
+      document.getElementById('preview-container').style.display = 'block';
+      document.getElementById('photo-preview').src = currentPhoto.url;
+      
+      // Scroll to top
+      window.scrollTo(0, 0);
+    }
+    
+    // ============================================
+    // CANCEL PHOTO
+    // ============================================
+    
+    function cancelPhoto() {
+      if (currentPhoto && currentPhoto.url) {
+        URL.revokeObjectURL(currentPhoto.url);
+      }
+      currentPhoto = null;
+      
+      document.getElementById('upload-options-view').style.display = 'block';
+      document.getElementById('photo-form-view').style.display = 'none';
+      
+      // Reset form
+      document.getElementById('note').value = '';
+      
+      // Reset file inputs
+      document.getElementById('camera-input').value = '';
+      document.getElementById('gallery-input').value = '';
+    }
+    
+    // ============================================
+    // RETAKE PHOTO
+    // ============================================
+    
+    function retakePhoto() {
+      if (currentPhoto && currentPhoto.url) {
+        URL.revokeObjectURL(currentPhoto.url);
+      }
+      currentPhoto = null;
+      
+      // Reset and trigger camera again
+      document.getElementById('camera-input').value = '';
+      document.getElementById('camera-input').click();
+    }
+    
+    // ============================================
+    // UPLOAD PHOTO
+    // ============================================
+    
+    async function uploadPhoto() {
+      if (!currentPhoto) {
+        alert('Aucune photo sélectionnée');
+        return;
+      }
+      
+      const lot = document.getElementById('lot').value;
+      const zone = document.getElementById('zone').value;
+      const note = document.getElementById('note').value;
+      
+      if (!lot || !zone) {
+        alert('Veuillez remplir tous les champs obligatoires');
+        return;
+      }
+      
+      // Show loading (in production, disable button)
+      console.log('📤 Uploading photo...');
+      
+      // Simulate upload delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // In production, this would be an API call:
+      // const formData = new FormData();
+      // formData.append('photo', currentPhoto.file);
+      // formData.append('chantier_id', chantierId);
+      // formData.append('lot', lot);
+      // formData.append('zone', zone);
+      // formData.append('note', note);
+      // 
+      // const response = await fetch('/tables/documents', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+      
+      // Mock: Add to uploaded photos
+      uploadedPhotos.push({
+        id: 'photo-' + Date.now(),
+        url: currentPhoto.url,
+        lot: lot,
+        zone: zone,
+        note: note,
+        timestamp: currentPhoto.timestamp
+      });
+      
+      // Show success message
+      showSuccessMessage();
+      
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([50, 100, 50]);
+      }
+      
+      console.log('✅ Photo uploaded successfully');
+    }
+    
+    // ============================================
+    // SHOW SUCCESS MESSAGE
+    // ============================================
+    
+    function showSuccessMessage() {
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('success-message').style.display = 'block';
+      
+      setTimeout(() => {
+        document.getElementById('overlay').style.display = 'none';
+        document.getElementById('success-message').style.display = 'none';
+        
+        // Reset and go back to options
+        cancelPhoto();
+        
+        // Update gallery
+        updateGallery();
+      }, 2000);
+    }
+    
+    // ============================================
+    // UPDATE GALLERY
+    // ============================================
+    
+    function updateGallery() {
+      if (uploadedPhotos.length === 0) {
+        document.getElementById('recent-photos').style.display = 'none';
+        return;
+      }
+      
+      document.getElementById('recent-photos').style.display = 'block';
+      
+      const grid = document.getElementById('gallery-grid');
+      grid.innerHTML = '';
+      
+      // Show last 3 photos
+      const recentPhotos = uploadedPhotos.slice(-3).reverse();
+      
+      recentPhotos.forEach((photo, index) => {
+        const item = document.createElement('div');
+        item.className = 'gallery-item fade-in';
+        item.innerHTML = `
+          <img src="${photo.url}" class="gallery-img" alt="Photo ${index + 1}">
+          <button class="gallery-delete" onclick="deletePhoto('${photo.id}')">×</button>
+        `;
+        grid.appendChild(item);
+      });
+    }
+    
+    // ============================================
+    // DELETE PHOTO
+    // ============================================
+    
+    function deletePhoto(photoId) {
+      if (!confirm('Supprimer cette photo ?')) return;
+      
+      const index = uploadedPhotos.findIndex(p => p.id === photoId);
+      if (index > -1) {
+        const photo = uploadedPhotos[index];
+        URL.revokeObjectURL(photo.url);
+        uploadedPhotos.splice(index, 1);
+        updateGallery();
+      }
+    }
+    
+    // ============================================
+    // GO BACK
+    // ============================================
+    
+    function goBack() {
+      if (document.getElementById('photo-form-view').style.display === 'block') {
+        // If in form view, go back to options
+        cancelPhoto();
+      } else {
+        // Go back to dashboard
+        window.location.href = '../dashboards/artisan.html';
+      }
+    }
+    
+    // ============================================
+    // SHOW HELP
+    // ============================================
+    
+    function showHelp() {
+      alert('💡 Conseils photos:\n\n' +
+            '✓ Prenez des vues larges + rapprochées\n' +
+            '✓ Éclairage naturel si possible\n' +
+            '✓ Photos nettes et bien cadrées\n' +
+            '✓ Indiquez le contexte (lot + zone)\n' +
+            '✓ Ajoutez une note si nécessaire');
+    }
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('✅ Upload photos page loaded');
+      console.log('📝 Chantier ID:', chantierId);
+      
+      // Load chantier name (mock data)
+      // In production, fetch from API
+      document.getElementById('chantier-name').textContent = 
+        'Toiture Résidence Lumière';
+    });
+    
+  </script>
+
+</body>
+</html>

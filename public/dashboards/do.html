@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1E40AF">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Dashboard Donneur d'Ordre - P.I.A.</title>
+  
+  <link rel="stylesheet" href="/static/mobile.css">
+  
+  <style>
+    :root {
+      --profile-color: #1E40AF;
+      --profile-color-light: #3B82F6;
+      --profile-color-dark: #1E3A8A;
+    }
+    
+    .mobile-header {
+      background: linear-gradient(135deg, var(--profile-color) 0%, var(--profile-color-dark) 100%);
+      color: white;
+      border-bottom: none;
+    }
+    
+    .header-back, .header-menu {
+      color: white;
+    }
+    
+    /* KPIs Grid */
+    .kpis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .kpi-card {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .kpi-label {
+      font-size: 12px;
+      color: var(--text-light);
+      margin-bottom: var(--space-xs);
+    }
+    
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--profile-color);
+      line-height: 1;
+    }
+    
+    /* Chantiers List */
+    .chantiers-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .chantier-item {
+      background: white;
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .chantier-item:active {
+      transform: scale(0.98);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .chantier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .chantier-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .chantier-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: #FEF3C7;
+      color: #D97706;
+      border-radius: var(--radius-full);
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .chantier-status.termine {
+      background: #D1FAE5;
+      color: #059669;
+    }
+    
+    .chantier-info {
+      display: flex;
+      gap: var(--space-sm);
+      flex-wrap: wrap;
+      margin-bottom: var(--space-sm);
+      font-size: 13px;
+      color: var(--text-light);
+    }
+    
+    .chantier-info-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .chantier-progress {
+      height: 6px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    
+    .chantier-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--profile-color) 0%, var(--profile-color-light) 100%);
+      border-radius: var(--radius-full);
+      transition: width 0.3s ease;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    
+    .quick-action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      background: white;
+      border-radius: var(--radius-lg);
+      border: none;
+      box-shadow: var(--shadow-md);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    
+    .quick-action-btn:active {
+      transform: scale(0.98);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    .quick-action-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: var(--bg-secondary);
+    }
+    
+    .quick-action-content {
+      flex: 1;
+    }
+    
+    .quick-action-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .quick-action-desc {
+      font-size: 12px;
+      color: var(--text-light);
+    }
+    
+    .bottom-nav-item.active {
+      color: var(--profile-color);
+    }
+    
+    .fab {
+      background: var(--profile-color);
+    }
+    
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-light);
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: var(--space-md);
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="mobile-header">
+    <button class="header-back" onclick="window.location.href='../index.html'" aria-label="Retour">
+      ←
+    </button>
+    
+    <div class="header-title">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <span>🏢</span>
+        <span>Donneur d'Ordre</span>
+      </div>
+    </div>
+    
+    <button class="header-menu" onclick="showMenu()" aria-label="Menu">
+      ⋮
+    </button>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container">
+    
+    <!-- KPIs -->
+    <div class="kpis-grid fade-in">
+      <div class="kpi-card">
+        <div class="kpi-label">Chantiers actifs</div>
+        <div class="kpi-value" id="kpi-actifs">3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">En réception</div>
+        <div class="kpi-value" id="kpi-reception">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Cautions émises</div>
+        <div class="kpi-value" id="kpi-cautions">2</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Budget total</div>
+        <div class="kpi-value" style="font-size: 20px;" id="kpi-budget">2.3M€</div>
+      </div>
+    </div>
+
+    <!-- Section Title -->
+    <div class="section-title">🏗️ Mes chantiers</div>
+
+    <!-- Chantiers List -->
+    <div class="chantiers-list" id="chantiers-list">
+      <!-- Chantiers will be inserted here -->
+    </div>
+
+    <!-- Empty State (hidden by default) -->
+    <div class="empty-state" id="empty-state" style="display: none;">
+      <div class="empty-state-icon">🏗️</div>
+      <h3>Aucun chantier</h3>
+      <p>Créez votre premier chantier pour commencer</p>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title">⚡ Actions rapides</div>
+    
+    <div class="quick-actions">
+      <a href="#" class="quick-action-btn" onclick="createChantier(); return false;">
+        <div class="quick-action-icon" style="background: var(--profile-color); color: white;">➕</div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Créer un chantier</div>
+          <div class="quick-action-desc">Nouveau projet de construction</div>
+        </div>
+      </a>
+      
+      <a href="#" class="quick-action-btn" onclick="demanderCaution(); return false;">
+        <div class="quick-action-icon">📄</div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Demander une caution</div>
+          <div class="quick-action-desc">Garanties financières</div>
+        </div>
+      </a>
+      
+      <a href="#" class="quick-action-btn" onclick="viewArbitrage(); return false;">
+        <div class="quick-action-icon">⚖️</div>
+        <div class="quick-action-content">
+          <div class="quick-action-title">Mes dossiers d'arbitrage</div>
+          <div class="quick-action-desc">Litiges en cours</div>
+        </div>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="../index.html" class="bottom-nav-item">
+      <div class="bottom-nav-icon">🏠</div>
+      <div class="bottom-nav-label">Accueil</div>
+    </a>
+    <a href="do.html" class="bottom-nav-item active">
+      <div class="bottom-nav-icon">📊</div>
+      <div class="bottom-nav-label">Dashboard</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="createChantier(); return false;">
+      <div class="bottom-nav-icon">➕</div>
+      <div class="bottom-nav-label">Créer</div>
+    </a>
+    <a href="#" class="bottom-nav-item" onclick="showMenu(); return false;">
+      <div class="bottom-nav-icon">👤</div>
+      <div class="bottom-nav-label">Profil</div>
+    </a>
+  </nav>
+
+  <!-- FAB -->
+  <button class="fab" onclick="createChantier()" aria-label="Créer un chantier">
+    ➕
+  </button>
+
+  <!-- Scripts -->
+  <script>
+    // ============================================
+    // LOAD DATA (Mock)
+    // ============================================
+    
+    function loadDashboardData() {
+      // Mock data
+      const kpis = {
+        actifs: 3,
+        reception: 1,
+        cautions: 2,
+        budget: 2300000
+      };
+      
+      const chantiers = [
+        {
+          id: 'ch-001',
+          nom: 'Groupe MERCY',
+          ville: 'Rosny-sous-Bois',
+          montant_ttc: 2240000,
+          progression: 78,
+          statut: 'En cours',
+          artisan: 'Dubois TP',
+          date_fin: '2023-12-31'
+        },
+        {
+          id: 'ch-002',
+          nom: 'Toiture Résidence Lumière',
+          ville: 'Lyon 3e',
+          montant_ttc: 35000,
+          progression: 60,
+          statut: 'En cours',
+          artisan: 'Martin Dubois',
+          date_fin: '2026-02-05'
+        },
+        {
+          id: 'ch-003',
+          nom: 'Rénovation Bureau',
+          ville: 'Paris 11e',
+          montant_ttc: 85000,
+          progression: 100,
+          statut: 'Terminé',
+          artisan: 'Rénov Pro',
+          date_fin: '2025-12-20'
+        }
+      ];
+      
+      // Update KPIs
+      document.getElementById('kpi-actifs').textContent = kpis.actifs;
+      document.getElementById('kpi-reception').textContent = kpis.reception;
+      document.getElementById('kpi-cautions').textContent = kpis.cautions;
+      document.getElementById('kpi-budget').textContent = 
+        (kpis.budget / 1000000).toFixed(1) + 'M€';
+      
+      // Render chantiers
+      renderChantiers(chantiers);
+    }
+    
+    // ============================================
+    // RENDER CHANTIERS
+    // ============================================
+    
+    function renderChantiers(chantiers) {
+      const container = document.getElementById('chantiers-list');
+      container.innerHTML = '';
+      
+      if (chantiers.length === 0) {
+        document.getElementById('empty-state').style.display = 'block';
+        return;
+      }
+      
+      chantiers.forEach(ch => {
+        const item = document.createElement('a');
+        item.href = '#';
+        item.className = 'chantier-item fade-in';
+        item.onclick = () => { viewChantier(ch.id); return false; };
+        
+        const statusClass = ch.statut === 'Terminé' ? 'termine' : '';
+        
+        item.innerHTML = `
+          <div class="chantier-header">
+            <div>
+              <div class="chantier-name">${ch.nom}</div>
+            </div>
+            <span class="chantier-status ${statusClass}">● ${ch.statut}</span>
+          </div>
+          <div class="chantier-info">
+            <span class="chantier-info-item">
+              <span>💰</span>
+              <span>${(ch.montant_ttc / 1000).toFixed(0)}k€</span>
+            </span>
+            <span class="chantier-info-item">
+              <span>📍</span>
+              <span>${ch.ville}</span>
+            </span>
+            <span class="chantier-info-item">
+              <span>👷</span>
+              <span>${ch.artisan}</span>
+            </span>
+          </div>
+          ${ch.statut !== 'Terminé' ? `
+            <div class="chantier-progress">
+              <div class="chantier-progress-fill" style="width: ${ch.progression}%"></div>
+            </div>
+          ` : ''}
+        `;
+        
+        container.appendChild(item);
+      });
+    }
+    
+    // ============================================
+    // ACTIONS
+    // ============================================
+    
+    function viewChantier(id) {
+      alert(`📋 Détail du chantier ${id}\n\nFonctionnalité à venir`);
+      // TODO: Navigate to chantier detail page
+    }
+    
+    function createChantier() {
+      if (confirm('➕ Créer un nouveau chantier\n\nOuvrir le formulaire ?')) {
+        alert('Formulaire de création à venir:\n\n' +
+              '• Nom du chantier\n' +
+              '• Adresse\n' +
+              '• Artisan\n' +
+              '• Budget\n' +
+              '• Dates');
+        // TODO: Navigate to create chantier form
+      }
+    }
+    
+    function demanderCaution() {
+      alert('📄 Demander une caution\n\nFonctionnalité à venir:\n\n' +
+            '• Caution restitution acompte\n' +
+            '• Garantie décennale\n' +
+            '• Caution marché\n' +
+            '• Garantie parfait achèvement');
+    }
+    
+    function viewArbitrage() {
+      alert('⚖️ Dossiers d\'arbitrage\n\nAucun dossier en cours');
+    }
+    
+    function showMenu() {
+      alert('Menu:\n\n' +
+            '• Mon profil\n' +
+            '• Mes sous-traitants\n' +
+            '• Documents\n' +
+            '• Paramètres\n' +
+            '• Déconnexion');
+    }
+    
+    // ============================================
+    // HAPTIC FEEDBACK
+    // ============================================
+    
+    document.querySelectorAll('.chantier-item, .quick-action-btn').forEach(el => {
+      el.addEventListener('click', () => {
+        if (navigator.vibrate) {
+          navigator.vibrate(10);
+        }
+      });
+    });
+    
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboardData();
+      console.log('✅ Dashboard DO loaded');
+    });
+    
+  </script>
+
+</body>
+</html>
