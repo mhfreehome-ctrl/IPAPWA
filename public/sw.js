@@ -3,14 +3,14 @@
 // Cache Strategy: Network First with Cache Fallback
 // ============================================
 
-const CACHE_VERSION = 'pia-mobile-v1.1';
+const CACHE_VERSION = 'pia-mobile-v1.2';
 const CACHE_NAME = `${CACHE_VERSION}`;
 
 // Files to cache immediately on install
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/css/mobile.css',
+  '/static/mobile.css',
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -90,133 +90,101 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // API requests (tables/*) - Network first, cache fallback
-  if (url.pathname.startsWith('/tables/')) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          // Clone response before caching
-          const responseClone = response.clone();
-          
-          caches.open(API_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          
-          return response;
-        })
-        .catch(() => {
-          // Network failed, try cache
-          return caches.match(request).then((cachedResponse) => {
-            if (cachedResponse) {
-              console.log(`[SW] Serving from cache (offline): ${url.pathname}`);
-              return cachedResponse;
-            }
-            
-            // No cache available
-            return new Response('Offline - No cached data available', {
-              status: 503,
-              statusText: 'Service Unavailable',
-              headers: { 'Content-Type': 'text/plain' }
-            });
-          });
-        })
-    );
+  // Skip cross-origin requests
+  if (url.origin !== location.origin) {
     return;
   }
 
-  // Static assets - Cache first, network fallback
+  // Network First strategy for all requests
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          console.log(`[SW] Serving from cache: ${url.pathname}`);
-          return cachedResponse;
+    fetch(request)
+      .then((response) => {
+        // Only cache successful responses (200) and avoid redirects (3xx)
+        if (response.status === 200 && response.type === 'basic') {
+          const responseClone = response.clone();
+          
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(request, responseClone);
+          });
         }
         
-        // Not in cache, fetch from network
-        return fetch(request)
-          .then((response) => {
-            // Cache successful responses
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(request, responseClone);
-              });
-            }
-            
-            return response;
-          })
-          .catch((error) => {
-            console.error(`[SW] Fetch failed for ${url.pathname}:`, error);
-            
-            // Return offline page for HTML requests
-            if (request.headers.get('accept').includes('text/html')) {
-              return new Response(`
-                <!DOCTYPE html>
-                <html lang="fr">
-                <head>
-                  <meta charset="UTF-8">
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                  <title>P.I.A. - Hors ligne</title>
-                  <style>
-                    body {
-                      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                      min-height: 100vh;
-                      margin: 0;
-                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                      color: white;
-                      padding: 20px;
-                      text-align: center;
-                    }
-                    .offline-container {
-                      max-width: 400px;
-                    }
-                    .offline-icon {
-                      font-size: 64px;
-                      margin-bottom: 20px;
-                    }
-                    h1 {
-                      font-size: 24px;
-                      margin-bottom: 12px;
-                    }
-                    p {
-                      font-size: 16px;
-                      opacity: 0.9;
-                      line-height: 1.6;
-                    }
-                    button {
-                      margin-top: 24px;
-                      padding: 12px 24px;
-                      background: white;
-                      color: #667eea;
-                      border: none;
-                      border-radius: 8px;
-                      font-size: 16px;
-                      font-weight: 600;
-                      cursor: pointer;
-                    }
-                  </style>
-                </head>
-                <body>
-                  <div class="offline-container">
-                    <div class="offline-icon">📡</div>
-                    <h1>Vous êtes hors ligne</h1>
-                    <p>P.I.A. nécessite une connexion internet pour cette page. Certaines fonctionnalités restent disponibles hors ligne.</p>
-                    <button onclick="window.location.reload()">Réessayer</button>
-                  </div>
-                </body>
-                </html>
-              `, {
-                headers: { 'Content-Type': 'text/html' }
-              });
-            }
-            
-            return new Response('Offline', { status: 503 });
-          });
+        return response;
+      })
+      .catch(() => {
+        // Network failed, try cache
+        return caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) {
+            console.log(`[SW] Serving from cache (offline): ${url.pathname}`);
+            return cachedResponse;
+          }
+          
+          // No cache available - return offline page for HTML
+          if (request.headers.get('accept')?.includes('text/html')) {
+            return new Response(`
+              <!DOCTYPE html>
+              <html lang="fr">
+              <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>P.I.A. - Hors ligne</title>
+                <style>
+                  body {
+                    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                  }
+                  .offline-container {
+                    max-width: 400px;
+                  }
+                  .offline-icon {
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                  }
+                  h1 {
+                    font-size: 24px;
+                    margin-bottom: 12px;
+                  }
+                  p {
+                    font-size: 16px;
+                    opacity: 0.9;
+                    line-height: 1.6;
+                  }
+                  button {
+                    margin-top: 24px;
+                    padding: 12px 24px;
+                    background: white;
+                    color: #667eea;
+                    border: none;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                  }
+                </style>
+              </head>
+              <body>
+                <div class="offline-container">
+                  <div class="offline-icon">📡</div>
+                  <h1>Vous êtes hors ligne</h1>
+                  <p>P.I.A. nécessite une connexion internet pour cette page.</p>
+                  <button onclick="window.location.reload()">Réessayer</button>
+                </div>
+              </body>
+              </html>
+            `, {
+              headers: { 'Content-Type': 'text/html' }
+            });
+          }
+          
+          return new Response('Offline', { status: 503 });
+        });
       })
   );
 });
