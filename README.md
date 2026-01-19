@@ -50,7 +50,9 @@ webapp/
 
 ## 🚀 URLs
 
-- **Production**: (À venir après déploiement Cloudflare Pages)
+- **Production**: https://pia-mobile-pwa.pages.dev
+- **Deployment**: https://05adadb8.pia-mobile-pwa.pages.dev
+- **Local Test**: https://3000-ixndnpah6wbqnxixelctk-b9b802c4.sandbox.novita.ai
 - **GitHub**: (À venir)
 
 ---
